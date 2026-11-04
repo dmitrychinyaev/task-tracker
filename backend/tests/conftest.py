@@ -37,6 +37,23 @@ def client(db_session):
 
 
 @pytest.fixture()
+def error_client(db_session):
+    """Client that returns 500 responses instead of re-raising the exception.
+
+    Starlette hands unhandled exceptions to ServerErrorMiddleware, which sends
+    the response but still re-raises, so the error handlers can only be
+    asserted with raise_server_exceptions=False.
+    """
+    def override_get_db():
+        yield db_session
+
+    app.dependency_overrides[get_db] = override_get_db
+    with TestClient(app, raise_server_exceptions=False) as test_client:
+        yield test_client
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture()
 def role(client):
     resp = client.post("/api/roles", json={"name": "Developer"})
     assert resp.status_code == 201

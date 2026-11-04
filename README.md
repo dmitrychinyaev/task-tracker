@@ -172,6 +172,27 @@ alembic upgrade head
 
 The final project should ideally run required migrations automatically during normal startup or document the exact command.
 
+## Logging and Error Handling
+
+The backend logs to stdout with a single format
+`[%(asctime)s] %(levelname)s in %(module)s: %(message)s` (uvicorn messages
+included). The level can be overridden with the `LOG_LEVEL` environment
+variable (default `INFO`).
+
+Unexpected failures never leak internals to the client:
+
+- database errors (`SQLAlchemyError`) return
+  `500 {"detail": "Database error occurred"}`;
+- any other unhandled exception returns
+  `500 {"detail": "Internal Server Error. Please contact support."}`.
+
+In both cases the full traceback is written to the container log, so
+`docker compose logs backend` is the place to look. The database password is
+never logged: the DSN printed on startup is redacted.
+
+`GET /api/health` reports liveness and `GET /api/health/error` intentionally
+raises `ValueError("Test exception")` to verify the error handling end to end.
+
 ## PDF Reports
 
 The application should support:
