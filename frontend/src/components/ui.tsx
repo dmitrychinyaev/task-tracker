@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { useI18n, statusLabel, priorityLabel } from '../i18n';
-import type { Tag } from '../types';
+import type { Assignee, Tag } from '../types';
 
 export function Loading() {
   const { t } = useI18n();
@@ -73,4 +73,17 @@ export function formatDeadline(s?: string | null): string {
   if (!s) return '';
   const d = new Date(s + 'T00:00:00');
   return isNaN(d.getTime()) ? '' : d.toLocaleDateString();
+}
+
+export function assigneeLabel(
+  assignees: Assignee[] | undefined,
+  fallback: string,
+  max = 3,
+): string {
+  const names = (assignees ?? []).map((a) => a.name);
+  if (names.length === 0) return fallback;
+  const shown = max > 0 ? names.slice(0, max) : names;
+  const extra = names.length - shown.length;
+  const label = shown.join(', ');
+  return extra > 0 ? `${label} +${extra}` : label;
 }

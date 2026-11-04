@@ -18,7 +18,7 @@ export default function TaskFormPage() {
   const [error, setError] = useState('');
 
   const [title, setTitle] = useState('');
-  const [assigneeId, setAssigneeId] = useState('');
+  const [assigneeIds, setAssigneeIds] = useState<number[]>([]);
   const [priority, setPriority] = useState('');
   const [sprintId, setSprintId] = useState('');
   const [deadline, setDeadline] = useState('');
@@ -36,14 +36,13 @@ export default function TaskFormPage() {
     setAssignees(a);
     setSprints(s);
     setTags(tg);
-    if (a.length > 0 && !editId) setAssigneeId(String(a[0].id));
   }, [editId]);
 
   const loadTask = useCallback(async () => {
     if (!editId) return;
     const task = await api.getTask(editId);
     setTitle(task.title);
-    setAssigneeId(task.assignee_id ? String(task.assignee_id) : '');
+    setAssigneeIds(task.assignees.map((a) => a.id));
     setPriority(task.priority ?? '');
     setSprintId(task.sprint_id ? String(task.sprint_id) : '');
     setDeadline(task.deadline ?? '');
@@ -90,13 +89,14 @@ export default function TaskFormPage() {
   const toggleTag = (tagId: number) =>
     setTagIds(tagIds.includes(tagId) ? tagIds.filter((x) => x !== tagId) : [...tagIds, tagId]);
 
+  const toggleAssignee = (assigneeId: number) =>
+    setAssigneeIds((prev) =>
+      prev.includes(assigneeId) ? prev.filter((x) => x !== assigneeId) : [...prev, assigneeId],
+    );
+
   const save = async () => {
     if (!title.trim()) {
       setError(t('task.title') + ': required');
-      return;
-    }
-    if (!editId && !assigneeId) {
-      setError(t('task.assignee') + ': required');
       return;
     }
     setError('');
@@ -113,11 +113,8 @@ export default function TaskFormPage() {
           .map((l) => ({ label: l.label?.trim() || null, url: l.url.trim() })),
       };
       const task = editId
-        ? await api.updateTask(editId, {
-            ...base,
-            assignee_id: assigneeId ? Number(assigneeId) : null,
-          })
-        : await api.createTask({ ...base, assignee_id: Number(assigneeId) });
+        ? await api.updateTask(editId, { ...base, assignee_ids: assigneeIds })
+        : await api.createTask({ ...base, assignee_ids: assigneeIds });
       navigate(`/tasks/${task.id}`);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
@@ -145,15 +142,19 @@ export default function TaskFormPage() {
 
         <div className="grid cols-2">
           <div className="field">
-            <label>{t('task.assignee')}</label>
-            <select value={assigneeId} onChange={(e) => setAssigneeId(e.target.value)}>
-              <option value="">—</option>
+            <label>{t('task.assignees')}</label>
+            <div className="checkbox-list">
               {assignees.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.name}
-                </option>
+                <label key={a.id} className="checkbox-item">
+                  <input
+                    type="checkbox"
+                    checked={assigneeIds.includes(a.id)}
+                    onChange={() => toggleAssignee(a.id)}
+                  />
+                  <span>{a.name}</span>
+                </label>
               ))}
-            </select>
+            </div>
           </div>
           <div className="field">
             <label>{t('task.priority')}</label>

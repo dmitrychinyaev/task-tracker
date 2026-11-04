@@ -66,8 +66,7 @@ export interface HistoryEvent {
 export interface TaskSummary {
   id: number;
   title: string;
-  assignee_id: number | null;
-  assignee?: Assignee | null;
+  assignees: Assignee[];
   status: string;
   priority?: string | null;
   sprint_id?: number | null;
@@ -123,7 +122,7 @@ export interface TaskLinkIn {
 
 export interface TaskCreatePayload {
   title: string;
-  assignee_id: number;
+  assignee_ids?: number[];
   description?: DescriptionBlock[];
   priority?: Priority | null;
   sprint_id?: number | null;
@@ -134,7 +133,7 @@ export interface TaskCreatePayload {
 
 export interface TaskUpdatePayload {
   title?: string;
-  assignee_id?: number | null;
+  assignee_ids?: number[];
   description?: DescriptionBlock[];
   priority?: Priority | null;
   sprint_id?: number | null;

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api';
 import { useI18n, statusLabel } from '../i18n';
 import type { TaskSummary } from '../types';
-import { ErrorBanner, Loading, StatusBadge, PriorityBadge, formatDeadline } from '../components/ui';
+import { ErrorBanner, Loading, StatusBadge, PriorityBadge, formatDeadline, assigneeLabel } from '../components/ui';
 
 const BOARD_STATUSES = ['backlog', 'todo', 'in_progress', 'review', 'qa', 'blocked'];
 
@@ -37,7 +37,7 @@ export default function BacklogPage() {
     if (!q) return true;
     return (
       task.title.toLowerCase().includes(q) ||
-      (task.assignee?.name ?? '').toLowerCase().includes(q)
+      task.assignees.some((a) => a.name.toLowerCase().includes(q))
     );
   });
 
@@ -80,7 +80,7 @@ export default function BacklogPage() {
           <thead>
             <tr>
               <th>{t('task.title')}</th>
-              <th>{t('task.assignee')}</th>
+              <th>{t('task.assignees')}</th>
               <th>{t('task.priority')}</th>
               <th>{t('task.deadline')}</th>
               <th>{t('task.status')}</th>
@@ -93,7 +93,7 @@ export default function BacklogPage() {
                 <td>
                   <Link to={`/tasks/${task.id}`}>{task.title}</Link>
                 </td>
-                <td>{task.assignee?.name ?? t('task.noAssignee')}</td>
+                <td>{assigneeLabel(task.assignees, t('task.noAssignee'))}</td>
                 <td>
                   <PriorityBadge priority={task.priority} />
                 </td>

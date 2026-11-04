@@ -87,7 +87,6 @@ def handle_telegram_intake(db: Session, payload: TelegramIntakeRequest) -> Teleg
 
     task = Task(
         title=title,
-        assignee_id=None,
         description=blocks,
         description_text=description_to_text(blocks),
         status=TaskStatus.BACKLOG,

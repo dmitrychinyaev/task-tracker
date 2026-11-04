@@ -1,5 +1,5 @@
 def test_kanban_report_generated(client, assignee):
-    task_id = client.post("/api/tasks", json={"title": "Задача с кириллицей", "assignee_id": assignee["id"]}).json()["id"]
+    task_id = client.post("/api/tasks", json={"title": "Задача с кириллицей", "assignee_ids": [assignee["id"]]}).json()["id"]
     client.post(f"/api/tasks/{task_id}/add-to-board", json={"status": "in_progress"})
 
     resp = client.get("/api/reports/kanban")
@@ -9,7 +9,7 @@ def test_kanban_report_generated(client, assignee):
 
 
 def test_task_report_generated(client, assignee):
-    task_id = client.post("/api/tasks", json={"title": "Task with images", "assignee_id": assignee["id"]}).json()["id"]
+    task_id = client.post("/api/tasks", json={"title": "Task with images", "assignee_ids": [assignee["id"]]}).json()["id"]
     resp = client.get(f"/api/reports/task/{task_id}")
     assert resp.status_code == 200
     assert resp.headers["content-type"] == "application/pdf"
@@ -23,7 +23,7 @@ def test_sprint_report_generated(client, assignee):
     ).json()
     client.post(
         "/api/tasks",
-        json={"title": "In sprint", "assignee_id": assignee["id"], "sprint_id": sprint["id"]},
+        json={"title": "In sprint", "assignee_ids": [assignee["id"]], "sprint_id": sprint["id"]},
     )
     resp = client.get(f"/api/reports/sprint/{sprint['id']}")
     assert resp.status_code == 200
@@ -32,7 +32,7 @@ def test_sprint_report_generated(client, assignee):
 
 
 def test_activity_report_generated(client, assignee):
-    client.post("/api/tasks", json={"title": "Activity task", "assignee_id": assignee["id"]})
+    client.post("/api/tasks", json={"title": "Activity task", "assignee_ids": [assignee["id"]]})
     resp = client.get("/api/reports/activity", params={"start": "2026-01-01", "end": "2026-12-31"})
     assert resp.status_code == 200
     assert resp.headers["content-type"] == "application/pdf"

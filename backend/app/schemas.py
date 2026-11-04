@@ -175,7 +175,7 @@ class HistoryOut(BaseModel):
 
 class TaskCreate(BaseModel):
     title: str = Field(min_length=1, max_length=500)
-    assignee_id: int
+    assignee_ids: List[int] = Field(default_factory=list)
     description: List[DescriptionBlock] = Field(default_factory=list)
     priority: Optional[Priority] = None
     sprint_id: Optional[int] = None
@@ -187,7 +187,7 @@ class TaskCreate(BaseModel):
 class TaskUpdate(BaseModel):
     title: Optional[str] = Field(default=None, min_length=1, max_length=500)
     description: Optional[List[DescriptionBlock]] = None
-    assignee_id: Optional[int] = None
+    assignee_ids: Optional[List[int]] = None
     priority: Optional[Priority] = None
     sprint_id: Optional[int] = None
     deadline: Optional[date] = None
@@ -209,8 +209,7 @@ class TaskSummaryOut(BaseModel):
 
     id: int
     title: str
-    assignee_id: Optional[int] = None
-    assignee: Optional[AssigneeOut] = None
+    assignees: List[AssigneeOut] = []
     status: str
     priority: Optional[str] = None
     sprint_id: Optional[int] = None

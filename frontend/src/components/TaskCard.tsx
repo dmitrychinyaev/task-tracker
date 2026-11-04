@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import type { TaskSummary } from '../types';
 import { useI18n } from '../i18n';
-import { PriorityBadge, formatDeadline } from './ui';
+import { PriorityBadge, formatDeadline, assigneeLabel } from './ui';
 
 export default function TaskCard({
   task,
@@ -24,7 +24,7 @@ export default function TaskCard({
     >
       <div className="title">{task.title}</div>
       <div className="meta">
-        <span>{task.assignee?.name ?? t('task.noAssignee')}</span>
+        <span>{assigneeLabel(task.assignees, t('task.noAssignee'))}</span>
         {task.deadline && <span>· {formatDeadline(task.deadline)}</span>}
         {task.blocked_reason && <span title={task.blocked_reason}>⛔</span>}
       </div>

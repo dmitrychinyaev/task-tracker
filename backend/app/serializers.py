@@ -14,8 +14,7 @@ def task_to_summary(task) -> TaskSummaryOut:
     return TaskSummaryOut(
         id=task.id,
         title=task.title,
-        assignee_id=task.assignee_id,
-        assignee=AssigneeOut.model_validate(task.assignee) if task.assignee else None,
+        assignees=[AssigneeOut.model_validate(a) for a in task.assignees],
         status=task.status,
         priority=task.priority,
         sprint_id=task.sprint_id,

@@ -32,7 +32,7 @@ def test_telegram_intake_creates_inbox_task(client):
     assert task["is_inbox"] is True
     assert task["source"] == "telegram"
     assert task["status"] == "backlog"
-    assert task["assignee_id"] is None
+    assert task["assignees"] == []
     assert task["title"] == "Задача из Telegram - разобрать"
     assert task["telegram_metadata"]["sender_user_id"] == 555
 
@@ -77,7 +77,7 @@ def test_inbox_task_can_move_to_backlog(client, assignee):
     resp = client.post(f"/api/tasks/{task_id}/move-to-backlog")
     assert resp.status_code == 400
 
-    client.patch(f"/api/tasks/{task_id}", json={"assignee_id": assignee["id"]})
+    client.patch(f"/api/tasks/{task_id}", json={"assignee_ids": [assignee["id"]]})
 
     resp = client.post(f"/api/tasks/{task_id}/move-to-backlog")
     assert resp.status_code == 200
@@ -100,7 +100,7 @@ def test_inbox_move_to_backlog_requires_assignee(client):
 
 
 def test_move_to_backlog_rejects_non_inbox_task(client, assignee):
-    task_id = client.post("/api/tasks", json={"title": "Manual", "assignee_id": assignee["id"]}).json()["id"]
+    task_id = client.post("/api/tasks", json={"title": "Manual", "assignee_ids": [assignee["id"]]}).json()["id"]
 
     resp = client.post(f"/api/tasks/{task_id}/move-to-backlog")
     assert resp.status_code == 400

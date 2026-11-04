@@ -51,7 +51,7 @@ def delete_assignee(assignee_id: int, db: Session = Depends(get_db)):
     assignee = db.get(Assignee, assignee_id)
     if not assignee:
         raise HTTPException(status_code=404, detail="Assignee not found")
-    if db.query(Task).filter(Task.assignee_id == assignee_id).count():
+    if db.query(Task).filter(Task.assignees.any(Assignee.id == assignee_id)).count():
         raise HTTPException(status_code=400, detail="Cannot delete an assignee that has tasks")
     db.delete(assignee)
     db.commit()

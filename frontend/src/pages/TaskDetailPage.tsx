@@ -11,6 +11,7 @@ import {
   TagPills,
   formatDateTime,
   formatDeadline,
+  assigneeLabel,
 } from '../components/ui';
 
 const STATUSES = ['backlog', 'todo', 'in_progress', 'review', 'qa', 'blocked', 'done'];
@@ -134,8 +135,8 @@ export default function TaskDetailPage() {
 
         <div className="grid cols-2" style={{ marginTop: 16 }}>
           <div>
-            <div className="muted">{t('task.assignee')}</div>
-            <div>{task.assignee?.name ?? t('task.noAssignee')}</div>
+            <div className="muted">{t('task.assignees')}</div>
+            <div>{assigneeLabel(task.assignees, t('task.noAssignee'), 0)}</div>
           </div>
           <div>
             <div className="muted">{t('task.sprint')}</div>

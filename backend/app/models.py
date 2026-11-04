@@ -22,6 +22,13 @@ task_tags = Table(
     Column("tag_id", Integer, ForeignKey("tags.id", ondelete="CASCADE"), primary_key=True),
 )
 
+task_assignees = Table(
+    "task_assignees",
+    Base.metadata,
+    Column("task_id", Integer, ForeignKey("tasks.id", ondelete="CASCADE"), primary_key=True),
+    Column("assignee_id", Integer, ForeignKey("assignees.id", ondelete="CASCADE"), primary_key=True),
+)
+
 
 class Assignee(Base):
     __tablename__ = "assignees"
@@ -32,7 +39,7 @@ class Assignee(Base):
     note = Column(Text, nullable=True)
     created_at = Column(DateTime, default=utcnow, nullable=False)
 
-    tasks = relationship("Task", back_populates="assignee")
+    tasks = relationship("Task", secondary=task_assignees, back_populates="assignees")
 
 
 class Tag(Base):
@@ -68,7 +75,6 @@ class Task(Base):
     # Plain-text projection of text blocks, used for search.
     description_text = Column(Text, nullable=False, default="")
 
-    assignee_id = Column(Integer, ForeignKey("assignees.id"), nullable=True)
     status = Column(String(50), nullable=False, default=TaskStatus.BACKLOG)
     priority = Column(String(50), nullable=True)
     sprint_id = Column(Integer, ForeignKey("sprints.id"), nullable=True)
@@ -90,7 +96,13 @@ class Task(Base):
     is_on_board = Column(Boolean, nullable=False, default=False)
     is_archived = Column(Boolean, nullable=False, default=False)
 
-    assignee = relationship("Assignee", back_populates="tasks", lazy="selectin")
+    assignees = relationship(
+        "Assignee",
+        secondary=task_assignees,
+        back_populates="tasks",
+        lazy="selectin",
+        order_by="Assignee.id",
+    )
     sprint = relationship("Sprint", back_populates="tasks", lazy="selectin")
     tags = relationship("Tag", secondary=task_tags, lazy="selectin")
     comments = relationship("Comment", back_populates="task", cascade="all, delete-orphan")

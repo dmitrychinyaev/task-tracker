@@ -161,7 +161,7 @@ def generate_task_pdf(task, images_by_id: dict) -> bytes:
     story = [Paragraph(_esc(task.title), styles["title"])]
 
     meta_lines = [
-        f"<b>Assignee:</b> {_esc(task.assignee.name if task.assignee else '-')}",
+        f"<b>Assignee:</b> {_esc(', '.join(a.name for a in task.assignees) or '-')}",
         f"<b>Status:</b> {_esc(_status_label(task.status))}",
         f"<b>Priority:</b> {_esc(_priority_label(task.priority))}",
         f"<b>Sprint:</b> {_esc(task.sprint.name if task.sprint else '-')}",
@@ -240,7 +240,7 @@ def generate_kanban_pdf(tasks) -> bytes:
         if not items:
             story.append(_para("(no tasks)", "small", styles))
         for task in items:
-            assignee = task.assignee.name if task.assignee else "-"
+            assignee = ", ".join(a.name for a in task.assignees) or "-"
             priority = _priority_label(task.priority)
             story.append(_para(f"• {task.title}  —  {assignee}  —  {priority}", "body", styles))
     return _build_pdf("Kanban Snapshot", story)
@@ -277,7 +277,7 @@ def generate_sprint_pdf(sprint, tasks) -> bytes:
             story.append(_para("(no tasks)", "small", styles))
             continue
         for task in group_tasks:
-            assignee = task.assignee.name if task.assignee else "-"
+            assignee = ", ".join(a.name for a in task.assignees) or "-"
             story.append(Paragraph(
                 f"• {_esc(task.title)} — {_esc(_status_label(task.status))} — {_esc(assignee)} — {_esc(_priority_label(task.priority))}",
                 styles["body"],

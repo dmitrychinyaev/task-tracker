@@ -51,6 +51,7 @@ export const ru: Record<string, string> = {
 
   'task.title': 'Название',
   'task.assignee': 'Исполнитель',
+  'task.assignees': 'Исполнители',
   'task.priority': 'Приоритет',
   'task.sprint': 'Спринт',
   'task.deadline': 'Срок',
@@ -193,6 +194,7 @@ export const en: Record<string, string> = {
 
   'task.title': 'Title',
   'task.assignee': 'Assignee',
+  'task.assignees': 'Assignees',
   'task.priority': 'Priority',
   'task.sprint': 'Sprint',
   'task.deadline': 'Deadline',

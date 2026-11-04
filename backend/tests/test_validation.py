@@ -28,5 +28,5 @@ def test_duplicate_tag_rejected(client):
 
 
 def test_task_requires_existing_assignee(client):
-    resp = client.post("/api/tasks", json={"title": "No assignee", "assignee_id": 9999})
+    resp = client.post("/api/tasks", json={"title": "No assignee", "assignee_ids": [9999]})
     assert resp.status_code == 400

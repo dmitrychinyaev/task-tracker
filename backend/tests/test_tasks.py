@@ -1,5 +1,5 @@
 def test_create_task_records_history(client, assignee):
-    resp = client.post("/api/tasks", json={"title": "New task", "assignee_id": assignee["id"]})
+    resp = client.post("/api/tasks", json={"title": "New task", "assignee_ids": [assignee["id"]]})
     assert resp.status_code == 201
     data = resp.json()
     assert data["status"] == "backlog"
@@ -12,7 +12,7 @@ def test_create_task_records_history(client, assignee):
 
 
 def test_move_to_blocked_requires_reason(client, assignee):
-    task_id = client.post("/api/tasks", json={"title": "T", "assignee_id": assignee["id"]}).json()["id"]
+    task_id = client.post("/api/tasks", json={"title": "T", "assignee_ids": [assignee["id"]]}).json()["id"]
     client.post(f"/api/tasks/{task_id}/add-to-board", json={"status": "todo"})
 
     resp = client.post(f"/api/tasks/{task_id}/move", json={"status": "blocked"})
@@ -30,7 +30,7 @@ def test_move_to_blocked_requires_reason(client, assignee):
 
 
 def test_unblock_clears_block_fields(client, assignee):
-    task_id = client.post("/api/tasks", json={"title": "T", "assignee_id": assignee["id"]}).json()["id"]
+    task_id = client.post("/api/tasks", json={"title": "T", "assignee_ids": [assignee["id"]]}).json()["id"]
     client.post(f"/api/tasks/{task_id}/add-to-board", json={"status": "in_progress"})
     client.post(f"/api/tasks/{task_id}/move", json={"status": "blocked", "blocking_reason": "Blocked"})
 
@@ -48,7 +48,7 @@ def test_unblock_clears_block_fields(client, assignee):
 
 
 def test_move_to_done_auto_archives(client, assignee):
-    task_id = client.post("/api/tasks", json={"title": "T", "assignee_id": assignee["id"]}).json()["id"]
+    task_id = client.post("/api/tasks", json={"title": "T", "assignee_ids": [assignee["id"]]}).json()["id"]
     client.post(f"/api/tasks/{task_id}/add-to-board", json={"status": "qa"})
 
     resp = client.post(f"/api/tasks/{task_id}/move", json={"status": "done"})
@@ -68,9 +68,35 @@ def test_move_to_done_auto_archives(client, assignee):
 
 
 def test_search_filters_by_title(client, assignee):
-    client.post("/api/tasks", json={"title": "Fix payment bug", "assignee_id": assignee["id"]})
-    client.post("/api/tasks", json={"title": "Write docs", "assignee_id": assignee["id"]})
+    client.post("/api/tasks", json={"title": "Fix payment bug", "assignee_ids": [assignee["id"]]})
+    client.post("/api/tasks", json={"title": "Write docs", "assignee_ids": [assignee["id"]]})
 
     result = client.get("/api/tasks", params={"search": "payment"}).json()
     assert len(result) == 1
     assert result[0]["title"] == "Fix payment bug"
+
+
+def test_task_supports_multiple_assignees(client, assignee):
+    second = client.post("/api/assignees", json={"name": "Petr", "role": "QA"}).json()
+    resp = client.post(
+        "/api/tasks",
+        json={"title": "Multi", "assignee_ids": [assignee["id"], second["id"]]},
+    )
+    assert resp.status_code == 201
+    data = resp.json()
+    assert [a["id"] for a in data["assignees"]] == [assignee["id"], second["id"]]
+
+    filtered = client.get("/api/tasks", params={"assignee_id": second["id"]}).json()
+    assert any(t["id"] == data["id"] for t in filtered)
+
+    updated = client.patch(f"/api/tasks/{data['id']}", json={"assignee_ids": []})
+    assert updated.status_code == 200
+    assert updated.json()["assignees"] == []
+    events = [h["event_type"] for h in updated.json()["history"]]
+    assert "assignee_changed" in events
+
+
+def test_create_task_without_assignees(client):
+    resp = client.post("/api/tasks", json={"title": "No assignees"})
+    assert resp.status_code == 201
+    assert resp.json()["assignees"] == []

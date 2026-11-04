@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { api } from '../api';
 import { useI18n } from '../i18n';
 import type { TaskSummary } from '../types';
-import { ErrorBanner, Loading, StatusBadge, PriorityBadge, formatDateTime } from '../components/ui';
+import { ErrorBanner, Loading, StatusBadge, PriorityBadge, formatDateTime, assigneeLabel } from '../components/ui';
 
 export default function ArchivePage() {
   const { t } = useI18n();
@@ -42,7 +42,7 @@ export default function ArchivePage() {
           <thead>
             <tr>
               <th>{t('task.title')}</th>
-              <th>{t('task.assignee')}</th>
+              <th>{t('task.assignees')}</th>
               <th>{t('task.priority')}</th>
               <th>{t('task.completedAt')}</th>
               <th>{t('task.status')}</th>
@@ -54,7 +54,7 @@ export default function ArchivePage() {
                 <td>
                   <Link to={`/tasks/${task.id}`}>{task.title}</Link>
                 </td>
-                <td>{task.assignee?.name ?? t('task.noAssignee')}</td>
+                <td>{assigneeLabel(task.assignees, t('task.noAssignee'))}</td>
                 <td>
                   <PriorityBadge priority={task.priority} />
                 </td>

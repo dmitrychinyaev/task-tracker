@@ -41,7 +41,7 @@ Inbox is not a Kanban column.
 ## Inbox
 
 Telegram-created tasks: - start in Inbox; - use default title
-`Задача из Telegram - разобрать`; - may temporarily have no assignee; -
+`Задача из Telegram - разобрать`; - may temporarily have no assignees; -
 preserve original text/caption without rewriting; - preserve all
 supported photos; - have `source = telegram`.
 
@@ -49,7 +49,7 @@ Inbox provides: - task list; - text/photo preview; - `Разобрать`
 action; - editing; - `Перенести в Backlog` action.
 
 Before Inbox -\> Backlog, normal required fields apply: - title; -
-assignee.
+assignees (at least one).
 
 The transition must be recorded in task history.
 
@@ -130,7 +130,7 @@ Business rules and persistence remain in the existing backend.
 ## Existing Task Tracker Behavior
 
 Preserve existing: - Backlog; - Kanban statuses; - Archive; -
-assignees; - multiple tags; - separate Sprint entity; - priorities and
+multiple assignees per task; - multiple tags; - separate Sprint entity; - priorities and
 deadlines; - comments; - structured history; - task links; - ordered
 text/image descriptions; - PDF reports; - Prompt Builder.
 

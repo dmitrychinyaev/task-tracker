@@ -5,7 +5,7 @@ from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models import Comment, Tag, Task
+from app.models import Assignee, Comment, Tag, Task
 from app.schemas import (
     AddToBoardRequest,
     CommentCreate,
@@ -53,7 +53,7 @@ def list_tasks(
     query = _apply_location(query, location)
 
     if assignee_id is not None:
-        query = query.filter(Task.assignee_id == assignee_id)
+        query = query.filter(Task.assignees.any(Assignee.id == assignee_id))
     if status is not None:
         query = query.filter(Task.status == status)
     if priority is not None:

@@ -58,6 +58,34 @@ def _set_tags(db: Session, task: Task, tag_ids: list[int], record: bool = False)
                 record_history(db, task, HistoryEventType.TAG_REMOVED, "tag", tag.name, None)
 
 
+def _set_assignees(db: Session, task: Task, assignee_ids: list[int], record: bool = False) -> None:
+    ordered_ids: list[int] = []
+    for assignee_id in assignee_ids:
+        if assignee_id not in ordered_ids:
+            ordered_ids.append(assignee_id)
+
+    new_assignees: list[Assignee] = []
+    for assignee_id in ordered_ids:
+        assignee = db.get(Assignee, assignee_id)
+        if not assignee:
+            raise HTTPException(status_code=400, detail="Assignee not found")
+        new_assignees.append(assignee)
+
+    old_names = ", ".join(a.name for a in task.assignees)
+    task.assignees = new_assignees
+    if record:
+        new_names = ", ".join(a.name for a in new_assignees)
+        if old_names != new_names:
+            record_history(
+                db,
+                task,
+                HistoryEventType.ASSIGNEE_CHANGED,
+                "assignee",
+                old_names or None,
+                new_names or None,
+            )
+
+
 def _set_links(db: Session, task: Task, links: list[dict]) -> None:
     task.links.clear()
     for link in links:
@@ -72,15 +100,12 @@ def get_task_or_404(db: Session, task_id: int) -> Task:
 
 
 def create_task(db: Session, data: TaskCreate) -> Task:
-    if not db.get(Assignee, data.assignee_id):
-        raise HTTPException(status_code=400, detail="Assignee not found")
     if data.sprint_id is not None and not db.get(Sprint, data.sprint_id):
         raise HTTPException(status_code=400, detail="Sprint not found")
 
     blocks = _blocks_to_dicts(data.description)
     task = Task(
         title=data.title,
-        assignee_id=data.assignee_id,
         description=blocks,
         description_text=description_to_text(blocks),
         priority=data.priority.value if data.priority else None,
@@ -93,6 +118,7 @@ def create_task(db: Session, data: TaskCreate) -> Task:
     db.add(task)
     db.flush()
 
+    _set_assignees(db, task, data.assignee_ids)
     _set_tags(db, task, data.tag_ids, record=False)
     _set_links(db, task, [l.model_dump() for l in data.links])
     record_history(db, task, HistoryEventType.TASK_CREATED, "task", None, task.title)
@@ -115,11 +141,8 @@ def update_task(db: Session, task: Task, data: TaskUpdate) -> Task:
         task.description_text = description_to_text(blocks)
         record_history(db, task, HistoryEventType.DESCRIPTION_CHANGED, "description", None, None)
 
-    if "assignee_id" in fields and data.assignee_id is not None and data.assignee_id != task.assignee_id:
-        if not db.get(Assignee, data.assignee_id):
-            raise HTTPException(status_code=400, detail="Assignee not found")
-        record_history(db, task, HistoryEventType.ASSIGNEE_CHANGED, "assignee", _fmt(task.assignee_id), _fmt(data.assignee_id))
-        task.assignee_id = data.assignee_id
+    if "assignee_ids" in fields and data.assignee_ids is not None:
+        _set_assignees(db, task, data.assignee_ids, record=True)
 
     if "priority" in fields:
         new_priority = data.priority.value if data.priority else None
@@ -205,7 +228,7 @@ def move_inbox_to_backlog(db: Session, task: Task) -> Task:
 
     if not (task.title or "").strip():
         raise HTTPException(status_code=400, detail="Set a title before moving the task to backlog")
-    if not task.assignee_id:
+    if not task.assignees:
         raise HTTPException(status_code=400, detail="Assign an assignee before moving the task to backlog")
 
     record_history(db, task, HistoryEventType.INBOX_MOVED_TO_BACKLOG, "inbox", "true", "false")
