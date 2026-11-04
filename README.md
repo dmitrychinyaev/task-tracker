@@ -76,6 +76,41 @@ API Docs: http://localhost:8000/docs
 
 The final implementation may use different ports if documented in `docker-compose.yml`.
 
+## Access Protection (Basic Auth)
+
+The tracker is closed with HTTP Basic Auth at the Nginx level:
+
+```text
+Login:    admin
+Password: bwana
+```
+
+The credentials live in `frontend/.htpasswd` as an Apache `apr1` hash and are
+committed to the repository, so the password can only be changed through code.
+`frontend/nginx.conf` enables `auth_basic` on the whole `server` block, which
+means that both the static UI **and** the proxied API (`/api/...`) require the
+password. After the first successful login the browser resends the credentials
+for every same-origin request, so the UI and the API keep working normally.
+
+A request without credentials gets `401 Unauthorized` together with
+`WWW-Authenticate: Basic realm="Restricted Access"`, which is what makes the
+browser show the login prompt.
+
+To change the password:
+
+```bash
+# 1. generate a new apr1 hash
+openssl passwd -apr1 new-password
+# 2. replace the single line in frontend/.htpasswd with admin:<hash>
+#    keep LF line endings and no BOM: a trailing CR becomes part of the hash
+# 3. rebuild the frontend image
+docker compose up -d --build frontend
+```
+
+Basic Auth protects only the Nginx entry point. `docker-compose.yml` still
+publishes the backend port (`8000:8000`), so the API also answers directly when
+that port is reachable on the server.
+
 ## Stop the Application
 
 ```bash

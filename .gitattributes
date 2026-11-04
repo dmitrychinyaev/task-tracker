@@ -1,0 +1,2 @@
+# The Nginx htpasswd file must keep LF endings: a trailing CR becomes part of the hash.
+frontend/.htpasswd -text
