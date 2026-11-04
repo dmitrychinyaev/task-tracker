@@ -1,5 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+import os
 
 from app.api import assignees, images, prompts, reports, sprints, tags, tasks, telegram
 
@@ -20,3 +22,7 @@ for router in (assignees.router, tags.router, sprints.router, tasks.router, imag
 @app.get("/api/health")
 def health():
     return {"status": "ok"}
+
+_frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "frontend_dist")
+if os.path.isdir(_frontend_dir):
+    app.mount("/", StaticFiles(directory=_frontend_dir, html=True), name="static")

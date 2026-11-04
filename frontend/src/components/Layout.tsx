@@ -1,8 +1,16 @@
-import { NavLink, Outlet } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useI18n } from '../i18n';
 
 export default function Layout() {
   const { t, lang, setLang } = useI18n();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const location = useLocation();
+
+  // Close the mobile menu after navigation.
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
 
   const nav = [
     { to: '/inbox', label: t('nav.inbox') },
@@ -17,12 +25,26 @@ export default function Layout() {
 
   return (
     <div className="app-shell">
-      <aside className="sidebar">
+      <header className="topbar">
+        <button
+          className="menu-toggle"
+          type="button"
+          aria-label="Menu"
+          aria-expanded={menuOpen}
+          onClick={() => setMenuOpen((v) => !v)}
+        >
+          ☰
+        </button>
+        <span className="topbar-brand">{t('app.title')}</span>
+      </header>
+
+      <aside className={`sidebar ${menuOpen ? 'open' : ''}`}>
         <div className="brand">{t('app.title')}</div>
         {nav.map((n) => (
           <NavLink
             key={n.to}
             to={n.to}
+            onClick={() => setMenuOpen(false)}
             className={({ isActive }) => (isActive ? 'active' : '')}
           >
             {n.label}
@@ -37,6 +59,11 @@ export default function Layout() {
           </button>
         </div>
       </aside>
+
+      {menuOpen && (
+        <div className="sidebar-backdrop" onClick={() => setMenuOpen(false)} />
+      )}
+
       <main className="main">
         <Outlet />
       </main>

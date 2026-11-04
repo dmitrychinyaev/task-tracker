@@ -54,6 +54,7 @@ export default function InboxPage() {
       {tasks.length === 0 ? (
         <div className="empty-hint">{t('inbox.empty')}</div>
       ) : (
+        <div className="table-wrap">
         <table>
           <thead>
             <tr>
@@ -84,6 +85,7 @@ export default function InboxPage() {
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </div>
   );

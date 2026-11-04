@@ -75,6 +75,7 @@ export default function BacklogPage() {
       {filtered.length === 0 ? (
         <div className="empty-hint">{t('backlog.empty')}</div>
       ) : (
+        <div className="table-wrap">
         <table>
           <thead>
             <tr>
@@ -124,6 +125,7 @@ export default function BacklogPage() {
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </div>
   );

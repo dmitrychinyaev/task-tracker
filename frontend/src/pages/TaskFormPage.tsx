@@ -220,7 +220,7 @@ export default function TaskFormPage() {
             </button>
           </div>
         ))}
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div className="button-row">
           <button className="btn secondary small" onClick={addTextBlock}>
             {t('task.addTextBlock')}
           </button>
@@ -244,12 +244,12 @@ export default function TaskFormPage() {
       <div className="card">
         <h3 style={{ marginTop: 0 }}>{t('task.links')}</h3>
         {links.map((link, i) => (
-          <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+          <div key={i} className="link-row">
             <input
               placeholder={t('task.linkLabel')}
               value={link.label ?? ''}
               onChange={(e) => updateLink(i, { label: e.target.value })}
-              style={{ maxWidth: 180 }}
+              className="link-label"
             />
             <input
               placeholder={t('task.linkUrl')}

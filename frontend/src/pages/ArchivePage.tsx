@@ -37,6 +37,7 @@ export default function ArchivePage() {
       {tasks.length === 0 ? (
         <div className="empty-hint">{t('archive.empty')}</div>
       ) : (
+        <div className="table-wrap">
         <table>
           <thead>
             <tr>
@@ -65,6 +66,7 @@ export default function ArchivePage() {
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </div>
   );

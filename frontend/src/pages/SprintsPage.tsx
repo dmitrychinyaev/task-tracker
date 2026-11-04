@@ -100,6 +100,7 @@ export default function SprintsPage() {
       {items.length === 0 ? (
         <div className="empty-hint">{t('sprints.empty')}</div>
       ) : (
+        <div className="table-wrap">
         <table>
           <thead>
             <tr>
@@ -133,6 +134,7 @@ export default function SprintsPage() {
             ))}
           </tbody>
         </table>
+        </div>
       )}
 
       {showForm && (

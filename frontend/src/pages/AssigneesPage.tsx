@@ -88,6 +88,7 @@ export default function AssigneesPage() {
       {items.length === 0 ? (
         <div className="empty-hint">{t('assignees.empty')}</div>
       ) : (
+        <div className="table-wrap">
         <table>
           <thead>
             <tr>
@@ -117,6 +118,7 @@ export default function AssigneesPage() {
             ))}
           </tbody>
         </table>
+        </div>
       )}
 
       {showForm && (
