@@ -11,10 +11,16 @@ export type Priority = 'low' | 'medium' | 'high' | 'critical';
 
 export type SprintStatus = 'planned' | 'active' | 'completed' | 'cancelled';
 
+export interface Role {
+  id: number;
+  name: string;
+  created_at: string;
+}
+
 export interface Assignee {
   id: number;
   name: string;
-  role?: string | null;
+  role?: Role | null;
   note?: string | null;
   created_at: string;
 }

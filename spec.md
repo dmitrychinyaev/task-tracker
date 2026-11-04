@@ -139,6 +139,17 @@ Blocked - Done
 
 Blocked tasks still require a blocking reason.
 
+## Assignees and roles
+
+Assignees are managed on a dedicated page with two tabs: staff and roles.
+
+Roles are a separate dictionary instead of free text: - a role has a unique
+name; - an assignee references at most one role and may have none; -
+renaming a role updates the role name for every assignee that uses it; - a
+role that still has assignees cannot be deleted.
+
+Existing free-text roles are migrated into the dictionary automatically.
+
 ## Reports
 
 Existing reports remain: - Single Task PDF - Kanban Snapshot - Sprint

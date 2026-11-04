@@ -20,6 +20,7 @@ Local single-user task tracker for managing work on the Bwanabet project.
 - Archive
 - Tags
 - Assignees
+- Role management (assignees reference a role from a dictionary)
 - Sprints
 - Comments
 - Structured task history

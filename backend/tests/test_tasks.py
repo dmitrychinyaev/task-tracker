@@ -77,7 +77,7 @@ def test_search_filters_by_title(client, assignee):
 
 
 def test_task_supports_multiple_assignees(client, assignee):
-    second = client.post("/api/assignees", json={"name": "Petr", "role": "QA"}).json()
+    second = client.post("/api/assignees", json={"name": "Petr"}).json()
     resp = client.post(
         "/api/tasks",
         json={"title": "Multi", "assignee_ids": [assignee["id"], second["id"]]},

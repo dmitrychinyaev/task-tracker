@@ -53,19 +53,40 @@ DescriptionBlock = Annotated[Union[TextBlock, ImageBlock], Field(discriminator="
 
 
 # ---------------------------------------------------------------------------
+# Roles
+# ---------------------------------------------------------------------------
+
+
+class RoleCreate(BaseModel):
+    name: str = Field(min_length=1, max_length=255)
+
+
+class RoleUpdate(BaseModel):
+    name: Optional[str] = Field(default=None, min_length=1, max_length=255)
+
+
+class RoleRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+    created_at: datetime
+
+
+# ---------------------------------------------------------------------------
 # Assignees
 # ---------------------------------------------------------------------------
 
 
 class AssigneeCreate(BaseModel):
     name: str = Field(min_length=1, max_length=255)
-    role: Optional[str] = None
+    role_id: Optional[int] = None
     note: Optional[str] = None
 
 
 class AssigneeUpdate(BaseModel):
     name: Optional[str] = Field(default=None, min_length=1, max_length=255)
-    role: Optional[str] = None
+    role_id: Optional[int] = None
     note: Optional[str] = None
 
 
@@ -74,7 +95,7 @@ class AssigneeOut(BaseModel):
 
     id: int
     name: str
-    role: Optional[str] = None
+    role: Optional[RoleRead] = None
     note: Optional[str] = None
     created_at: datetime
 

@@ -37,8 +37,15 @@ def client(db_session):
 
 
 @pytest.fixture()
-def assignee(client):
-    resp = client.post("/api/assignees", json={"name": "Ivan", "role": "Developer"})
+def role(client):
+    resp = client.post("/api/roles", json={"name": "Developer"})
+    assert resp.status_code == 201
+    return resp.json()
+
+
+@pytest.fixture()
+def assignee(client, role):
+    resp = client.post("/api/assignees", json={"name": "Ivan", "role_id": role["id"]})
     assert resp.status_code == 201
     return resp.json()
 

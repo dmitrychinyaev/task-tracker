@@ -4,6 +4,7 @@ import type {
   GeneratePromptPayload,
   ImageMeta,
   PromptDraft,
+  Role,
   Sprint,
   Tag,
   TaskCreatePayload,
@@ -58,11 +59,19 @@ export function imageUrl(id: number): string {
 }
 
 export const api = {
+  // ---- Roles ----
+  listRoles: () => request<Role[]>('/api/roles'),
+  createRole: (d: { name: string }) =>
+    request<Role>('/api/roles', { method: 'POST', body: JSON.stringify(d) }),
+  updateRole: (id: number, d: { name?: string }) =>
+    request<Role>(`/api/roles/${id}`, { method: 'PATCH', body: JSON.stringify(d) }),
+  deleteRole: (id: number) => request<void>(`/api/roles/${id}`, { method: 'DELETE' }),
+
   // ---- Assignees ----
   listAssignees: () => request<Assignee[]>('/api/assignees'),
-  createAssignee: (d: { name: string; role?: string | null; note?: string | null }) =>
+  createAssignee: (d: { name: string; role_id?: number | null; note?: string | null }) =>
     request<Assignee>('/api/assignees', { method: 'POST', body: JSON.stringify(d) }),
-  updateAssignee: (id: number, d: { name?: string; role?: string | null; note?: string | null }) =>
+  updateAssignee: (id: number, d: { name?: string; role_id?: number | null; note?: string | null }) =>
     request<Assignee>(`/api/assignees/${id}`, { method: 'PATCH', body: JSON.stringify(d) }),
   deleteAssignee: (id: number) => request<void>(`/api/assignees/${id}`, { method: 'DELETE' }),
 

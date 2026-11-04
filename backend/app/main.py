@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import os
 
-from app.api import assignees, images, prompts, reports, sprints, tags, tasks, telegram
+from app.api import assignees, images, prompts, reports, roles, sprints, tags, tasks, telegram
 
 app = FastAPI(title="Bwanabet Task Tracker", version="1.0.0")
 
@@ -15,7 +15,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-for router in (assignees.router, tags.router, sprints.router, tasks.router, images.router, reports.router, prompts.router, telegram.router):
+for router in (assignees.router, roles.router, tags.router, sprints.router, tasks.router, images.router, reports.router, prompts.router, telegram.router):
     app.include_router(router)
 
 

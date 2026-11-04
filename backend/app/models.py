@@ -30,15 +30,26 @@ task_assignees = Table(
 )
 
 
+class Role(Base):
+    __tablename__ = "roles"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(255), nullable=False, unique=True)
+    created_at = Column(DateTime, default=utcnow, nullable=False)
+
+    assignees = relationship("Assignee", back_populates="role", lazy="selectin")
+
+
 class Assignee(Base):
     __tablename__ = "assignees"
 
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False, unique=True)
-    role = Column(String(100), nullable=True)
+    role_id = Column(Integer, ForeignKey("roles.id"), nullable=True)
     note = Column(Text, nullable=True)
     created_at = Column(DateTime, default=utcnow, nullable=False)
 
+    role = relationship("Role", back_populates="assignees", lazy="selectin")
     tasks = relationship("Task", secondary=task_assignees, back_populates="assignees")
 
 
